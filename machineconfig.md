@@ -87,6 +87,33 @@ $ journalctl -f -u machine-config-daemon-host.service
 ```
 
 
+Decode URL formated string
+
+Most MachineConfig content source is encoded so in order to see original content, you should decode it.
+
+(EX) crio.conf
+
+```
+echo  'urldecode() { : "${*//+/ }"; echo -e "${_//%/\\x}"; }' > ./urldecode.sh; chmod 0775 ./urldecode.sh
+
+./urldecode.sh $(oc get mc rendered-worker-2b30xxxx -o jsonpath='{.spec.config.storage.files[?(@.path=="/etc/crio/crio.conf")].contents.source}' |cut -d',' -f2) > current_mc_crio.conf
+```
+
+
+Check RHCOS OS images
+
+```
+rpm-ostree status
+```
+
+Change booted image
+
+```
+pivot -r $REFSPEC
+```
+
+
+
 
 # Order of MachineConfigs
 
