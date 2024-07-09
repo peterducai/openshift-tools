@@ -190,14 +190,8 @@ pivot -r $REFSPEC
 touch  /run/machine-config-daemon-force
 ```
 
-Use it only when you know the issue can be ignored
-Force re-evaluation on a node
-Delete machine config daemon pod for that node
-Check MCD metrics: 
-Pivot drain and reboot errors, update status
-https://docs.openshift.com/container-platform/4.15/nodes/nodes/nodes-nodes-machine-config-daemon-metrics.html
-Node drain issues due to pod disruption budget
-Etcd, infra pods -  check the root cause
-Customer specific app pods (work with customer)
-MCO Troubleshooting Megadoc
-https://docs.google.com/document/d/1fgP6Kv1D-75e1Ot0Kg-W2qPyxWDp2_CALltlBLuseec/edit#heading=h.drwt9450c5pc
+Force re-evaluation on a node. **Use it only when you know the issue can be ignored!**
+
+
+
+
