@@ -1,5 +1,26 @@
 
 
+# Log troubleshooting
+
+```
+$ oc get mcp worker
+
+NAME     CONFIG                                             UPDATED   UPDATING   DEGRADED   MACHINECOUNT   READYMACHINECOUNT   UPDATEDMACHINECOUNT   DEGRADEDMACHINECOUNT
+worker   rendered-worker-fe23xxxx                            False     True       True       4              3                   3                     1
+```
+
+where we can see one node is degraded (not ready).
+
+
+```
+oc get mcp  worker -o jsonpath='{.status.conditions}'  
+```
+
+
+```
+$ export degraded_node=worker-0.example.com
+$ oc logs $(oc get pod -o wide |grep $degraded_node |awk '{print $1}') -c machine-config-daemon
+```
 
 
 
@@ -16,6 +37,48 @@ As an example, let’s say I have the following 3 machineconfigs, all writing to
 ```
 
 2 will override 3, since 9>1 and 1 will override 2, since s>o. In the final system, only the file defined in 99-worker-chrony-conf-slow will take effect (again, they are writing to the same file) since the MCO merges them.
+
+
+
+
+
+
+
+
+Check logs of MachineConfigPool to know which nodes have issues and any hints regarding the issues.
+
+Raw
+oc get mcp 
+oc get mcp  worker -o jsonpath='{.status.conditions}'  
+Useful log files
+openshift machine config daemon pod log
+
+Raw
+$ export degraded_node=worker-0.example.com
+$ oc logs $(oc get pod -o wide |grep $degraded_node |awk '{print $1}') -c machine-config-daemon
+machine-config-daemon-host.service on a node
+
+Raw
+$ journalctl -f -u machine-config-daemon-host.service
+Decode URL formated string
+Most MachineConfig content source is encoded so in order to see original content, you should decode it.
+
+(EX) crio.conf
+
+Raw
+echo  'urldecode() { : "${*//+/ }"; echo -e "${_//%/\\x}"; }' > ./urldecode.sh; chmod 0775 ./urldecode.sh
+
+./urldecode.sh $(oc get mc rendered-worker-2b30xxxx -o jsonpath='{.spec.config.storage.files[?(@.path=="/etc/crio/crio.conf")].contents.source}' |cut -d',' -f2) > current_mc_crio.conf
+Check RHCOS OS images
+Raw
+rpm-ostree status
+Change booted image
+Raw
+pivot -r $REFSPEC
+
+
+
+
 
 
 
