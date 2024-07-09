@@ -133,58 +133,6 @@ As an example, let’s say I have the following 3 machineconfigs, all writing to
 
 
 
-
-Most MachineConfig content source is encoded so in order to see original content, you should decode it.
-
-(EX) crio.conf
-
-```
-echo  'urldecode() { : "${*//+/ }"; echo -e "${_//%/\\x}"; }' > ./urldecode.sh; chmod 0775 ./urldecode.sh
-
-./urldecode.sh $(oc get mc rendered-worker-2b30xxxx -o jsonpath='{.spec.config.storage.files[?(@.path=="/etc/crio/crio.conf")].contents.source}' |cut -d',' -f2) > current_mc_crio.conf
-```
-
-
-
-
-
-Check logs of MachineConfigPool to know which nodes have issues and any hints regarding the issues.
-
-Raw
-oc get mcp 
-oc get mcp  worker -o jsonpath='{.status.conditions}'  
-Useful log files
-openshift machine config daemon pod log
-
-Raw
-$ export degraded_node=worker-0.example.com
-$ oc logs $(oc get pod -o wide |grep $degraded_node |awk '{print $1}') -c machine-config-daemon
-machine-config-daemon-host.service on a node
-
-Raw
-$ journalctl -f -u machine-config-daemon-host.service
-Decode URL formated string
-Most MachineConfig content source is encoded so in order to see original content, you should decode it.
-
-(EX) crio.conf
-
-Raw
-echo  'urldecode() { : "${*//+/ }"; echo -e "${_//%/\\x}"; }' > ./urldecode.sh; chmod 0775 ./urldecode.sh
-
-./urldecode.sh $(oc get mc rendered-worker-2b30xxxx -o jsonpath='{.spec.config.storage.files[?(@.path=="/etc/crio/crio.conf")].contents.source}' |cut -d',' -f2) > current_mc_crio.conf
-Check RHCOS OS images
-Raw
-rpm-ostree status
-Change booted image
-Raw
-pivot -r $REFSPEC
-
-
-
-
-
-
-
 # How do I find a MCD pod associated with a node
 
 ```
