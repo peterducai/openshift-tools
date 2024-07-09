@@ -1,5 +1,63 @@
 
 
+# Components of Machine Config Operator
+
+The Machine Config Operator is a complex component. There are several sub-components and each sub-component performs a different task. This blog does not explain all the sub-components in detail, but you can examine each of them by clicking the links below.
+
+* Machine Config Server
+* Machine Config Controller
+    * Coordinate upgrade of machines to the desired configuration defined by a MachineConfig Object.
+    * Provide options to control upgrades for sets of machines individually.
+* Template Controller
+    * Generate the MachineConfigs for predefined roles of machines (master, worker).
+    * Watch controllerconfig to generate OpenShift-owned MachineConfigs.
+* Update Controller
+    * Watch if MachineConfigPool .Status.CurrentMachineConfig is updated.
+    * Upgrade machines to the desired MachineConfig by coordinating with a daemon running on each machine.
+* Render Controller
+    * Watch MachineConfigPool object to find all the MachineConfig objects. 
+    * Update CurrentMachineConfig with the rendered MachineConfig.
+    * Detect changes on all the MachineConfigs and syncs all the MachineConfigPool objects with a new CurrentMachineConfig.
+* Kubelet Config Controller
+* Machine Config Daemon
+
+
+
+
+
+# Creating MachineConfig
+
+
+While creating or modifying machineconfig (mc) object, it is to be ensured that the mode parameter must have an 'octal' value with a leading '0':
+
+```
+   filesystem: root
+        mode: 0664
+        path: /path/to/file
+```
+
+These permissions assigned to the file with octal value will get converted into decimal as evident in the output of oc describe mc <mc-name>:
+
+```
+    Filesystem:  root
+        Mode:  420
+        Path:  /path/to/file
+```
+
+This is the expected behaviour since the mode accepts value in octal when creating machineconfig file and then it specifies it as decimal value in the machineconfig object.
+
+
+To troubleshoot this issue use
+
+```
+$ oc get mcp -oyaml
+
+$ oc -n openshift-machine-config-operator logs machine-config-daemon-XXXXX 
+```
+
+
+
+
 # Log troubleshooting
 
 ```
